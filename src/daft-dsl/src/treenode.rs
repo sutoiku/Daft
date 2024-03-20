@@ -19,6 +19,7 @@ impl TreeNode for Expr {
                     Count(expr, ..)
                     | Sum(expr)
                     | Mean(expr)
+                    | Product(expr)
                     | Min(expr)
                     | Max(expr)
                     | AnyValue(expr, _)
@@ -64,6 +65,7 @@ impl TreeNode for Expr {
                     Count(expr, mode) => transform(expr.as_ref().clone())?.count(mode),
                     Sum(expr) => transform(expr.as_ref().clone())?.sum(),
                     Mean(expr) => transform(expr.as_ref().clone())?.mean(),
+                    Product(expr) => transform(expr.as_ref().clone())?.product(),
                     Min(expr) => transform(expr.as_ref().clone())?.min(),
                     Max(expr) => transform(expr.as_ref().clone())?.max(),
                     AnyValue(expr, ignore_nulls) => {

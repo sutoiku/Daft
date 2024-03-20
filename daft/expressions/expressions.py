@@ -354,6 +354,10 @@ class Expression:
         expr = self._expr.mean()
         return Expression._from_pyexpr(expr)
 
+    def product(self) -> Expression:
+        expr = self._expr.product()
+        return Expression._from_pyexpr(expr)
+
     def min(self) -> Expression:
         expr = self._expr.min()
         return Expression._from_pyexpr(expr)
@@ -558,7 +562,7 @@ class ExpressionUrlNamespace(ExpressionNamespace):
             elif on_error == "null":
                 raise_on_error = False
             else:
-                raise NotImplemented(f"Unimplemented on_error option: {on_error}.")
+                raise NotImplementedError(f"Unimplemented on_error option: {on_error}.")
 
             if not (isinstance(max_connections, int) and max_connections > 0):
                 raise ValueError(f"Invalid value for `max_connections`: {max_connections}")

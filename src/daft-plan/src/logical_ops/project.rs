@@ -362,6 +362,10 @@ fn replace_column_with_semantic_id_aggexpr(
             replace_column_with_semantic_id(child.clone(), subexprs_to_replace, schema)
                 .map_yes_no(AggExpr::Mean, |_| e.clone())
         }
+        AggExpr::Product(ref child) => {
+            replace_column_with_semantic_id(child.clone(), subexprs_to_replace, schema)
+                .map_yes_no(AggExpr::Product, |_| e.clone())
+        }
         AggExpr::Min(ref child) => {
             replace_column_with_semantic_id(child.clone(), subexprs_to_replace, schema)
                 .map_yes_no(AggExpr::Min, |_| e.clone())

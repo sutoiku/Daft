@@ -57,6 +57,7 @@ pub enum AggExpr {
     Count(ExprRef, CountMode),
     Sum(ExprRef),
     Mean(ExprRef),
+    Product(ExprRef),
     Min(ExprRef),
     Max(ExprRef),
     AnyValue(ExprRef, bool),
@@ -87,6 +88,7 @@ impl AggExpr {
             Count(expr, ..)
             | Sum(expr)
             | Mean(expr)
+            | Product(expr)
             | Min(expr)
             | Max(expr)
             | AnyValue(expr, _)
@@ -110,6 +112,10 @@ impl AggExpr {
             Mean(expr) => {
                 let child_id = expr.semantic_id(schema);
                 FieldID::new(format!("{child_id}.local_mean()"))
+            }
+            Product(expr) => {
+                let child_id = expr.semantic_id(schema);
+                FieldID::new(format!("{child_id}.local_product()"))
             }
             Min(expr) => {
                 let child_id = expr.semantic_id(schema);
@@ -143,6 +149,7 @@ impl AggExpr {
             Count(expr, ..)
             | Sum(expr)
             | Mean(expr)
+            | Product(expr)
             | Min(expr)
             | Max(expr)
             | AnyValue(expr, _)
@@ -206,6 +213,29 @@ impl AggExpr {
                     },
                 ))
             }
+            Product(expr) => {
+                let field = expr.to_field(schema)?;
+                Ok(Field::new(
+                    field.name.as_str(),
+                    match &field.dtype {
+                        DataType::Int8 | DataType::Int16 | DataType::Int32 | DataType::Int64 => {
+                            DataType::Int64
+                        }
+                        DataType::UInt8
+                        | DataType::UInt16
+                        | DataType::UInt32
+                        | DataType::UInt64 => DataType::UInt64,
+                        DataType::Float32 => DataType::Float32,
+                        DataType::Float64 => DataType::Float64,
+                        other => {
+                            return Err(DaftError::TypeError(format!(
+                                "Expected input to product() to be numeric but received dtype {} for column \"{}\"",
+                                other, field.name,
+                            )))
+                        }
+                    },
+                ))
+            }
             Min(expr) | Max(expr) | AnyValue(expr, _) => {
                 let field = expr.to_field(schema)?;
                 Ok(Field::new(field.name.as_str(), field.dtype))
@@ -235,6 +265,7 @@ impl AggExpr {
             "count" => Ok(Count(child.clone().into(), CountMode::Valid)),
             "sum" => Ok(Sum(child.clone().into())),
             "mean" => Ok(Mean(child.clone().into())),
+            "product" => Ok(Product(child.clone().into())),
             "min" => Ok(Min(child.clone().into())),
             "max" => Ok(Max(child.clone().into())),
             "list" => Ok(List(child.clone().into())),
@@ -279,6 +310,10 @@ impl Expr {
 
     pub fn mean(&self) -> Self {
         Expr::Agg(AggExpr::Mean(self.clone().into()))
+    }
+
+    pub fn product(&self) -> Self {
+        Expr::Agg(AggExpr::Product(self.clone().into()))
     }
 
     pub fn min(&self) -> Self {
@@ -693,6 +728,7 @@ impl Display for AggExpr {
             Count(expr, mode) => write!(f, "count({expr}, {mode})"),
             Sum(expr) => write!(f, "sum({expr})"),
             Mean(expr) => write!(f, "mean({expr})"),
+            Product(expr) => write!(f, "product({expr})"),
             Min(expr) => write!(f, "min({expr})"),
             Max(expr) => write!(f, "max({expr})"),
             AnyValue(expr, ignore_nulls) => {

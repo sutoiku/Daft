@@ -28,13 +28,14 @@ def test_agg_global(make_df, repartition_nparts):
         [
             col("values").sum().alias("sum"),
             col("values").mean().alias("mean"),
+            col("values").product().alias("product"),
             col("values").min().alias("min"),
             col("values").max().alias("max"),
             col("values").count().alias("count"),
             col("values").agg_list().alias("list"),
         ]
     )
-    expected = {"sum": [3], "mean": [1.5], "min": [1], "max": [2], "count": [2], "list": [[1, None, 2]]}
+    expected = {"sum": [3], "mean": [1.5], "product": [2], "min": [1], "max": [2], "count": [2], "list": [[1, None, 2]]}
 
     daft_df.collect()
     daft_cols = daft_df.to_pydict()
@@ -60,6 +61,7 @@ def test_agg_global_all_null(make_df, repartition_nparts):
         [
             col("values").sum().alias("sum"),
             col("values").mean().alias("mean"),
+            col("values").product().alias("product"),
             col("values").min().alias("min"),
             col("values").max().alias("max"),
             col("values").count().alias("count"),
@@ -69,6 +71,7 @@ def test_agg_global_all_null(make_df, repartition_nparts):
     expected = {
         "sum": [None],
         "mean": [None],
+        "product": [None],
         "min": [None],
         "max": [None],
         "count": [0],
@@ -93,6 +96,7 @@ def test_agg_global_empty(make_df):
         [
             col("values").sum().alias("sum"),
             col("values").mean().alias("mean"),
+            col("values").product().alias("product"),
             col("values").min().alias("min"),
             col("values").max().alias("max"),
             col("values").count().alias("count"),
@@ -102,6 +106,7 @@ def test_agg_global_empty(make_df):
     expected = {
         "sum": [None],
         "mean": [None],
+        "product": [None],
         "min": [None],
         "max": [None],
         "count": [0],
@@ -127,6 +132,7 @@ def test_agg_groupby(make_df, repartition_nparts):
         [
             col("values").sum().alias("sum"),
             col("values").mean().alias("mean"),
+            col("values").product().alias("product"),
             col("values").min().alias("min"),
             col("values").max().alias("max"),
             col("values").count().alias("count"),
@@ -137,6 +143,7 @@ def test_agg_groupby(make_df, repartition_nparts):
         "group": [1, 2],
         "sum": [3, 6],
         "mean": [1.5, 3],
+        "product": [2, 8],
         "min": [1, 2],
         "max": [2, 4],
         "count": [2, 2],
@@ -172,6 +179,7 @@ def test_agg_groupby_all_null(make_df, repartition_nparts):
         [
             col("values").sum().alias("sum"),
             col("values").mean().alias("mean"),
+            col("values").product().alias("product"),
             col("values").min().alias("min"),
             col("values").max().alias("max"),
             col("values").count().alias("count"),
@@ -183,6 +191,7 @@ def test_agg_groupby_all_null(make_df, repartition_nparts):
         "group": [1, 2],
         "sum": [None, None],
         "mean": [None, None],
+        "product": [None, None],
         "min": [None, None],
         "max": [None, None],
         "count": [0, 0],
@@ -290,6 +299,7 @@ def test_agg_groupby_empty(make_df):
         [
             col("values").sum().alias("sum"),
             col("values").mean().alias("mean"),
+            col("values").product().alias("product"),
             col("values").min().alias("min"),
             col("values").max().alias("max"),
             col("values").count().alias("count"),
@@ -301,6 +311,7 @@ def test_agg_groupby_empty(make_df):
         "group": [],
         "sum": [],
         "mean": [],
+        "product": [],
         "min": [],
         "max": [],
         "count": [],

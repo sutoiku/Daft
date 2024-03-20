@@ -1062,6 +1062,8 @@ class DataFrame:
             return expr.max()
         elif op == "mean":
             return expr.mean()
+        elif op == "product":
+            return expr.product()
         elif op == "any_value":
             return expr.any_value()
         elif op == "list":
@@ -1110,6 +1112,17 @@ class DataFrame:
             DataFrame: Globally aggregated mean. Should be a single row.
         """
         return self._apply_agg_fn(Expression.mean, cols)
+
+    @DataframePublicAPI
+    def product(self, *cols: ColumnInputType) -> "DataFrame":
+        """Performs a global product on the DataFrame
+
+        Args:
+            *cols (Union[str, Expression]): columns to product
+        Returns:
+            DataFrame: Globally aggregated product. Should be a single row.
+        """
+        return self._apply_agg_fn(Expression.product, cols)
 
     @DataframePublicAPI
     def min(self, *cols: ColumnInputType) -> "DataFrame":
@@ -1620,6 +1633,17 @@ class GroupedDataFrame:
             DataFrame: DataFrame with grouped mean.
         """
         return self.df._apply_agg_fn(Expression.mean, cols, self.group_by)
+
+    def product(self, *cols: ColumnInputType) -> "DataFrame":
+        """Performs grouped product on this GroupedDataFrame.
+
+        Args:
+            *cols (Union[str, Expression]): columns to product
+
+        Returns:
+            DataFrame: DataFrame with grouped product.
+        """
+        return self.df._apply_agg_fn(Expression.product, cols, self.group_by)
 
     def min(self, *cols: ColumnInputType) -> "DataFrame":
         """Perform grouped min on this GroupedDataFrame.

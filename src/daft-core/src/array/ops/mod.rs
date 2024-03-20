@@ -31,6 +31,7 @@ mod list_agg;
 mod mean;
 mod null;
 mod pairwise;
+mod product;
 mod repr;
 mod search_sorted;
 mod sort;
@@ -126,6 +127,12 @@ pub trait DaftMeanAggable {
     type Output;
     fn mean(&self) -> Self::Output;
     fn grouped_mean(&self, groups: &GroupIndices) -> Self::Output;
+}
+
+pub trait DaftProductAggable {
+    type Output;
+    fn product(&self) -> Self::Output;
+    fn grouped_product(&self, groups: &GroupIndices) -> Self::Output;
 }
 
 pub trait DaftCompareAggable {

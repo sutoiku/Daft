@@ -64,6 +64,7 @@ fn extract_agg_expr(expr: &Expr) -> DaftResult<daft_dsl::AggExpr> {
                 Count(e, count_mode) => Count(Alias(e, name.clone()).into(), count_mode),
                 Sum(e) => Sum(Alias(e, name.clone()).into()),
                 Mean(e) => Mean(Alias(e, name.clone()).into()),
+                Product(e) => Product(Alias(e, name.clone()).into()),
                 Min(e) => Min(Alias(e, name.clone()).into()),
                 Max(e) => Max(Alias(e, name.clone()).into()),
                 AnyValue(e, ignore_nulls) => AnyValue(Alias(e, name.clone()).into(), ignore_nulls),

@@ -90,6 +90,61 @@ impl Series {
         }
     }
 
+    pub fn product(&self, groups: Option<&GroupIndices>) -> DaftResult<Series> {
+        use crate::array::ops::DaftProductAggable;
+        use crate::datatypes::DataType::*;
+
+        match self.data_type() {
+            // intX -> int64 (in line with numpy)
+            Int8 | Int16 | Int32 | Int64 => {
+                let casted = self.cast(&Int64)?;
+                match groups {
+                    Some(groups) => {
+                        Ok(DaftProductAggable::grouped_product(&casted.i64()?, groups)?
+                            .into_series())
+                    }
+                    None => Ok(DaftProductAggable::product(&casted.i64()?)?.into_series()),
+                }
+            }
+            // uintX -> uint64 (in line with numpy)
+            UInt8 | UInt16 | UInt32 | UInt64 => {
+                let casted = self.cast(&UInt64)?;
+                match groups {
+                    Some(groups) => {
+                        Ok(DaftProductAggable::grouped_product(&casted.u64()?, groups)?
+                            .into_series())
+                    }
+                    None => Ok(DaftProductAggable::product(&casted.u64()?)?.into_series()),
+                }
+            }
+            // floatX -> floatX (in line with numpy)
+            Float32 => match groups {
+                Some(groups) => Ok(DaftProductAggable::grouped_product(
+                    &self.downcast::<Float32Array>()?,
+                    groups,
+                )?
+                .into_series()),
+                None => Ok(
+                    DaftProductAggable::product(&self.downcast::<Float32Array>()?)?.into_series(),
+                ),
+            },
+            Float64 => match groups {
+                Some(groups) => Ok(DaftProductAggable::grouped_product(
+                    &self.downcast::<Float64Array>()?,
+                    groups,
+                )?
+                .into_series()),
+                None => Ok(
+                    DaftProductAggable::product(&self.downcast::<Float64Array>()?)?.into_series(),
+                ),
+            },
+            other => Err(DaftError::TypeError(format!(
+                "Numeric sum is not implemented for type {}",
+                other
+            ))),
+        }
+    }
+
     pub fn min(&self, groups: Option<&GroupIndices>) -> DaftResult<Series> {
         self.inner.min(groups)
     }

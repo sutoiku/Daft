@@ -31,6 +31,16 @@ def test_mean(daft_df, service_requests_csv_pd_df, repartition_nparts):
     assert_df_equals(daft_pd_df, service_requests_csv_pd_df, sort_key="unique_key_mean")
 
 
+def test_product(daft_df, service_requests_csv_pd_df, repartition_nparts):
+    """Multiplys across a column for entire table"""
+    daft_df = daft_df.repartition(repartition_nparts).product(col("Unique Key").alias("unique_key_product"))
+    service_requests_csv_pd_df = pd.DataFrame.from_records(
+        [{"unique_key_product": service_requests_csv_pd_df["Unique Key"].product()}]
+    )
+    daft_pd_df = daft_df.to_pandas()
+    assert_df_equals(daft_pd_df, service_requests_csv_pd_df, sort_key="unique_key_product")
+
+
 def test_min(daft_df, service_requests_csv_pd_df, repartition_nparts):
     """min across a column for entire table"""
     daft_df = daft_df.repartition(repartition_nparts).min(col("Unique Key").alias("unique_key_min"))

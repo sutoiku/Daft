@@ -350,6 +350,25 @@ pub fn plan(logical_plan: &LogicalPlan, cfg: Arc<DaftExecutionConfig>) -> DaftRe
                                     .alias(output_name),
                                 );
                             }
+                            Product(e) => {
+                                let product_id = agg_expr.semantic_id(&schema).id;
+                                let product_of_product_id =
+                                    Product(Column(product_id.clone()).into())
+                                        .semantic_id(&schema)
+                                        .id;
+                                first_stage_aggs
+                                    .entry(product_id.clone())
+                                    .or_insert(Product(e.alias(product_id.clone()).clone().into()));
+                                second_stage_aggs
+                                    .entry(product_of_product_id.clone())
+                                    .or_insert(Product(
+                                        Column(product_id.clone())
+                                            .alias(product_of_product_id.clone())
+                                            .into(),
+                                    ));
+                                final_exprs
+                                    .push(Column(product_of_product_id.clone()).alias(output_name));
+                            }
                             Min(e) => {
                                 let min_id = agg_expr.semantic_id(&schema).id;
                                 let min_of_min_id =

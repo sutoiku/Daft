@@ -226,6 +226,10 @@ impl PyExpr {
         Ok(self.expr.mean().into())
     }
 
+    pub fn product(&self) -> PyResult<Self> {
+        Ok(self.expr.product().into())
+    }
+
     pub fn min(&self) -> PyResult<Self> {
         Ok(self.expr.min().into())
     }
